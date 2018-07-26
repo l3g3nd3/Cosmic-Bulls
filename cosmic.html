@@ -1,0 +1,24 @@
+<html>
+	<body>
+
+			<img id="imageToSwap" src="flippingBook.jpg" />
+
+			<br/><br/>
+
+			<select id="dlist" onChange="swapImage()">
+				<option value="book.jpg">Book</option>
+				<option value="cookie.jpg">Chocolate Chip</option>
+				<option value="oreo.jpg">Oreo</option>
+			</select>
+
+			<script type="text/javascript">
+				function swapImage(){
+					var image = document.getElementById("imageToSwap");
+					var dropd = document.getElementById("dlist");
+					image.src = dropd.value;
+				};
+			</script>
+
+	</body>
+
+</html>
