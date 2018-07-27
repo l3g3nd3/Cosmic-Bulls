@@ -1,74 +1,197 @@
 <html>
+<style>
+#nav_pane {
+	float: left;
+	width: 200px;
+	margin: 1em;
+}
+#work_pane {
+	float: left;
+	margin: 1em;
+}
+#imageToSwap {
+	height: 400px;
+	width: 400px;
+	position:relative;
+	top:0px;
+	left:0px;
+}
+#dlist {
+	min-width:70%;
+}
+.marker {
+	background-color: red;
+	width: 10px;
+	height:10px;
+	position:absolute;
+	border-radius: 5px;
+}
+
+</style>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script>
+function get_images() {
+	return[
+		"img/May08_03.05.02.bin_1_0.png",	"img/May08_05.53.51.bin_11_0.png",
+		"img/May08_03.13.02.bin_2_0.png",	"img/May08_05.55.31.bin_12_0.png",
+		"img/May08_03.15.02.bin_3_0.png",	"img/May08_05.57.01.bin_13_0.png",
+		"img/May08_03.43.44.bin_4_0.png",	"img/May08_05.59.52.bin_14_0.png",
+		"img/May08_04.32.27.bin_5_0.png",	"img/May08_06.09.02.bin_15_0.png",
+		"img/May08_04.33.57.bin_6_0.png",	"img/May08_06.30.43.bin_16_0.png",
+		"img/May08_04.36.57.bin_7_0.png",	"img/May08_07.08.55.bin_17_0.png",
+		"img/May08_05.24.39.bin_8_0.png",	"img/May08_07.10.35.bin_18_0.png",
+		"img/May08_05.31.00.bin_9_0.png",	"img/May08_07.13.35.bin_19_0.png",
+		"img/May08_05.35.20.bin_10_0.png",	"img/May08_07.30.46.bin_20_0.png"
+	];
+}
+
+function get_local_images() {
+	var list = [];
+	$("#imageToSwap").children().forEach(function(option) {
+		list.push(option.value);
+	})
+}
+
+
+var intervalId;
+var coords = new Array();
+var imageJson = {name: "", coordinates: coords};
+
+$(document).ready(function() {
+
+	  var select = document.getElementById("dlist");
+	  get_images().forEach(function(image, index){
+			var opt = document.createElement('option');
+	    opt.value = image;
+	    opt.innerHTML = index+1;
+	    select.appendChild(opt);
+		});
+
+		// This is the list for the images to select
+    $("#dlist").change(	function () {
+			$("#imageToSwap").css('background-image', 'url("' + $("#dlist").val() + '")');
+		});
+
+		$("#clear_all_markers").click(function() {
+			$("#imageToSwap").children().remove(); // only allows you to add one marker
+		});
+		// Every time you click on the image, gets the position x and position y for the
+		// location for which you clicked on. Also adds a red marker at that location.
+		$("#imageToSwap").click(function (e) {
+			if (!$("#dlist").val()) return;
+			console.debug()
+			var subtractX = $(this).position().left;
+			var subtractY = $(this).position().top;
+			var posX = e.clientX - subtractX;
+      var posY = e.clientY - subtractY;
+			var position = {x: posX, y: posY}
+			//listofPositions.push(position)
+			console.debug("posX: " + posX);
+			console.debug("posY: " + posY);
+
+
+			// creating a JSON object
+			var images = get_images();
+			var idx = images.indexOf($("#dlist").val());
+			imageJson.name = images[idx];
+			var newCoordinates = imageJson.coordinates;
+			var coordinate = {x: posX, y: posY};
+			newCoordinates.push(coordinate);
+			imageJson.coordinates = newCoordinates;
+			console.debug("name: "+imageJson.name);
+
+			//
+			// var jsonNameELement = {name : images[idx]};
+			// var jsonElement = {x: posX, y: posY};
+			// jsonVariables.push(jsonElement);
+			// jsonVariables.push({name: "name"})
+
+			//result["'" + images[idx] + "'"] = {"x :" + posX + "," + "y :" + posY};
+
+			var marker = document.createElement('div');
+			$(marker).attr('class', 'marker')
+					.css('top', e.pageY - $(this).position().top - 5)
+					.css('left', e.pageX - $(this).position().left - 5);
+			this.appendChild(marker);
+
+			$(marker).contextmenu(function(){
+				// delete marker (=this)
+ 				$(marker).remove();
+				return false;
+			});
+		});
+		// allows you to increment ny one image
+		$("#forward_button").click(function (){
+			var images = get_images();
+			var idx = images.indexOf($("#dlist").val());
+			$("#dlist").val(images[(idx + 1) % images.length]).change();
+		});
+
+		// sends the json object
+		$("#submit_button").click(function () {
+			var myJSON = JSON.stringify(imageJson);
+			alert(myJSON);
+		});
+
+		// decrement ny one image
+		$("#backward_button").click(function () {
+			var images = get_images();
+			var idx = images.indexOf($("#dlist").val());
+			$("#dlist").val(images[(idx + images.length - 1) % images.length]).change();
+		});
+
+		// delete specified image
+		$("#delete_image_button").click(function() {
+			var images = get_images();
+			var idx = images.indexOf($("#dlist").val());
+			$("#forward_button").click();
+			$("#dlist :nth-child(" + (idx+1) + ")").remove();
+			//$("#dlist").val(images[idx]).splice(idx, 1);
+		});
+
+		// start forward slideshow
+		$("#start_show").click(function() {
+			intervalId = setInterval(function() {$("#forward_button").click()}, 500);
+		});
+
+		$("#end_show").click(function() {
+			clearInterval(intervalId);
+		});
+
+		// play slideshow in reverse direction
+		$("#start_back_show").click(function() {
+			alert("hi");
+			intervalId = setInterval(function() {$("#backward_button").click()}, 500);
+		});
+
+		$("#stop_back_show").click(function() {
+			clearInterval(intervalId);
+		});
+});
+
+</script>
 	<body>
+			<div id="nav_pane">
+				<select id="dlist" size="20">
 
-			<img id="imageToSwap" src="flippingBook.jpg" height="500" width="500"
-						align="right" style="margin-right:110px; margin-top:180px" />
+				</select>
+			</div>
 
-			<br/><br/>
 
-			<select id="dlist" onChange="swapImage()" align="left" style="margin-top:300px; margin-left:100px" multiple>
-				<option value="1.jpg">Book</option>
-				<option value="2.jpg">Chocolate Chip</option>
-				<option value="3.jpg">Oreo</option>
-			</select>
 
-			<!-- <button id="IncrementOneImage" onClick="startImageSlideShow()" text="Move By One"> -->
-			<input type="button" value="Forward One Image" onclick="forwardOne()" />
-			<input type="button" value="Backward One Image" onclick="backwardOne()" />
-			<input type="button" value="Start Slide Show" onclick="startImageSlideShow()" />
-			<input type="button" value="Stop Slide Show" onclick="stopImageSlideShow()" />
-			</button>
+			<div id="work_pane">
+				<div id="imageToSwap"></div>
+	 			<input type="button" value="Forward One Image" id="forward_button" />
+	 			<input type="button" value="Backward One Image" id="backward_button" />
+	 			<input type="button" value="Start Slide Show" id="start_show" />
+	 			<input type="button" value="Stop Slide Show" id="end_show" />
+				<input type="button" value="Start Backwards Slide Show" id="start_back_show" />
+				<input type="button" value="Stop Backwards Slide Show" id="stop_back_show" />
+				<input type="button" value="Remove All Markers" id="clear_all_markers" />
+				<input type="button" value="Submit" id="submit_button" />
+				<input type="button" value="Delete Image" id="delete_image_button" />
 
-			<script type="text/javascript">
-
-				function swapImage() {
-					var image = document.getElementById("imageToSwap");
-					var dropd = document.getElementById("dlist");
-					image.src = dropd.value;
-				};
-
-				function forwardOne() {
-					setImage();
-				}
-				function backwardOne() {
-					goBackAnImage();
-				}
-
-				function startImageSlideShow()
-    		{
-        	intervalId = setInterval(setImage, 500);
-    		}
-
-		    function stopImageSlideShow()
-		    {
-		        clearInterval(intervalId);
-		    }
-
-				function goBackAnImage() {
-					var imageSrc = document.getElementById("imageToSwap").getAttribute("src");
-					var currentImageNumber = imageSrc.substring(imageSrc.lastIndexOf("/") + 1,
-																											imageSrc.lastIndexOf("/") + 2);
-					if (currentImageNumber == 1) {
-						currentImageNumber = 4;
-					}
-					document.getElementById("imageToSwap").setAttribute("src", (Number(currentImageNumber) - 1) + ".jpg");
-					console.debug("test: "+currentImageNumber); // used for debugging purposes
-				}
-
-		    function setImage()
-		    {
-		        var imageSrc = document.getElementById("imageToSwap").getAttribute("src");
-
-		        var currentImageNumber = imageSrc.substring(imageSrc.lastIndexOf("/") + 1,
-		                                                    imageSrc.lastIndexOf("/") + 2);
-		        if (currentImageNumber == 3)
-		        {
-		            currentImageNumber = 0;
-		        }
-		        document.getElementById("imageToSwap").setAttribute("src", (Number(currentImageNumber) + 1) + ".jpg");
-		    }
-
-			</script>
+			</div>
 
 	</body>
 
