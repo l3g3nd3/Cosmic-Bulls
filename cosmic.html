@@ -12,9 +12,19 @@
 #imageToSwap {
 	height: 400px;
 	width: 400px;
+	position:relative;
+	top:0px;
+	left:0px;
 }
 #dlist {
 	min-width:70%;
+}
+.marker {
+	background-color: red;
+	width: 10px;
+	height:10px;
+	position:absolute;
+	border-radius: 5px;
 }
 </style>
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
@@ -34,6 +44,7 @@ function get_images() {
 	];
 }
 
+
 $(document).ready(function() {
 	  var select = document.getElementById("dlist");
 	  get_images().forEach(function(image, index){
@@ -43,10 +54,22 @@ $(document).ready(function() {
 	    select.appendChild(opt);
 		});
     $("#dlist").change(	function () {
-				var image = document.getElementById("imageToSwap");
-				var dropd = document.getElementById("dlist");
-				image.src = dropd.value;
+			$("#imageToSwap").css('background-image', 'url("' + $("#dlist").val() + '")');
 			});
+		$("#imageToSwap").click(function (e) {
+			var posX = $(this).position().left,
+            posY = $(this).position().top;
+			var marker = document.createElement('div');
+			$(marker).attr('class', 'marker')
+					.css('top', e.pageY - $(this).position().top - 5)
+					.css('left', e.pageX - $(this).position().left - 5);
+			this.appendChild(marker);
+			$(marker).contextmenu(function(){
+				// delete marker (=this)
+ 				$(marker).remove();
+				return false;
+			});
+		});
 });
 </script>
 	<body>
@@ -58,7 +81,7 @@ $(document).ready(function() {
 
 
 			<div id="work_pane">
-				<img id="imageToSwap" />
+				 <div id="imageToSwap"></div>
 			</div>
 
 
