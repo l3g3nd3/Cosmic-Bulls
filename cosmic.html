@@ -1,22 +1,73 @@
 <html>
 	<body>
 
-			<img id="imageToSwap" src="flippingBook.jpg" height="500" width="500" align="right" style="margin-right:110px; margin-top:180px"/>
+			<img id="imageToSwap" src="flippingBook.jpg" height="500" width="500"
+						align="right" style="margin-right:110px; margin-top:180px" />
 
 			<br/><br/>
 
-			<select id="dlist" onChange="swapImage()" align="left" style="margin-top:300px; margin-left:100px">
-				<option value="book.jpg">Book</option>
-				<option value="cookie.jpg">Chocolate Chip</option>
-				<option value="oreo.jpg">Oreo</option>
+			<select id="dlist" onChange="swapImage()" align="left" style="margin-top:300px; margin-left:100px" multiple>
+				<option value="1.jpg">Book</option>
+				<option value="2.jpg">Chocolate Chip</option>
+				<option value="3.jpg">Oreo</option>
 			</select>
 
+			<!-- <button id="IncrementOneImage" onClick="startImageSlideShow()" text="Move By One"> -->
+			<input type="button" value="Forward One Image" onclick="forwardOne()" />
+			<input type="button" value="Backward One Image" onclick="backwardOne()" />
+			<input type="button" value="Start Slide Show" onclick="startImageSlideShow()" />
+			<input type="button" value="Stop Slide Show" onclick="stopImageSlideShow()" />
+			</button>
+
 			<script type="text/javascript">
+
 				function swapImage() {
 					var image = document.getElementById("imageToSwap");
 					var dropd = document.getElementById("dlist");
 					image.src = dropd.value;
 				};
+
+				function forwardOne() {
+					setImage();
+				}
+				function backwardOne() {
+					goBackAnImage();
+				}
+
+				function startImageSlideShow()
+    		{
+        	intervalId = setInterval(setImage, 500);
+    		}
+
+		    function stopImageSlideShow()
+		    {
+		        clearInterval(intervalId);
+		    }
+
+				function goBackAnImage() {
+					var imageSrc = document.getElementById("imageToSwap").getAttribute("src");
+					var currentImageNumber = imageSrc.substring(imageSrc.lastIndexOf("/") + 1,
+																											imageSrc.lastIndexOf("/") + 2);
+					if (currentImageNumber == 1) {
+						currentImageNumber = 4;
+					}
+					document.getElementById("imageToSwap").setAttribute("src", (Number(currentImageNumber) - 1) + ".jpg");
+					console.debug("test: "+currentImageNumber); // used for debugging purposes
+				}
+
+		    function setImage()
+		    {
+		        var imageSrc = document.getElementById("imageToSwap").getAttribute("src");
+
+		        var currentImageNumber = imageSrc.substring(imageSrc.lastIndexOf("/") + 1,
+		                                                    imageSrc.lastIndexOf("/") + 2);
+		        if (currentImageNumber == 3)
+		        {
+		            currentImageNumber = 0;
+		        }
+		        document.getElementById("imageToSwap").setAttribute("src", (Number(currentImageNumber) + 1) + ".jpg");
+		    }
+
 			</script>
 
 	</body>
